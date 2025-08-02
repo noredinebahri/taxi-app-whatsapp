@@ -1,0 +1,176 @@
+name: Deploy WhatsApp API to Oracle Cloud
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+    types: [ closed ]
+
+env:
+  NODE_VERSION: '18'
+  APP_NAME: 'WhatsApp Transfer VVIP API'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.merged == true)
+    
+    steps:
+    - name: 📥 Checkout code
+      uses: actions/checkout@v4
+      
+    - name: 🟢 Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+        
+    - name: 📦 Install dependencies
+      run: npm ci
+      
+    - name: 🧪 Run tests
+      run: npm test --if-present
+      
+    - name: 🔍 Run security audit
+      run: npm audit --audit-level=moderate
+      continue-on-error: true
+
+  deploy:
+    needs: test
+    runs-on: ubuntu-latest
+    if: (github.event_name == 'push' && github.ref == 'refs/heads/main') || (github.event_name == 'pull_request' && github.event.pull_request.merged == true)
+    
+    environment:
+      name: production
+      url: http://${{ secrets.HOST }}:3000
+      
+    steps:
+    - name: 📥 Checkout code
+      uses: actions/checkout@v4
+      
+    - name: 📂 Copy deployment script to server
+      uses: appleboy/scp-action@v0.1.7
+      with:
+        host: ${{ secrets.HOST }}
+        username: ${{ secrets.USERNAME }}
+        key: ${{ secrets.SSH_PRIVATE_KEY }}
+        port: 22
+        source: "scripts/deploy.sh"
+        target: "/home/ubuntu/taxi-app-whatsapp/"
+        overwrite: true
+        
+    - name: 🚀 Deploy to Oracle Cloud Server
+      uses: appleboy/ssh-action@v1.0.3
+      with:
+        host: ${{ secrets.HOST }}
+        username: ${{ secrets.USERNAME }}
+        key: ${{ secrets.SSH_PRIVATE_KEY }}
+        port: 22
+        timeout: 300s
+        command_timeout: 300s
+        script: |
+          echo "🚀 Starting deployment for ${{ env.APP_NAME }}..."
+          echo "📊 Deployment Info:"
+          echo "  - Repository: ${{ github.repository }}"
+          echo "  - Branch: ${{ github.ref_name }}"
+          echo "  - Commit: ${{ github.sha }}"
+          echo "  - Actor: ${{ github.actor }}"
+          echo "  - Event: ${{ github.event_name }}"
+          
+          # Make deployment script executable
+          chmod +x /home/ubuntu/taxi-app-whatsapp/scripts/deploy.sh
+          
+          # Run deployment script
+          cd /home/ubuntu/taxi-app-whatsapp
+          ./scripts/deploy.sh
+          
+    - name: 🏥 Final Health Check
+      uses: appleboy/ssh-action@v1.0.3
+      with:
+        host: ${{ secrets.HOST }}
+        username: ${{ secrets.USERNAME }}
+        key: ${{ secrets.SSH_PRIVATE_KEY }}
+        port: 22
+        script: |
+          echo "🏥 Performing final health check..."
+          
+          # Wait a bit more for application to fully start
+          sleep 5
+          
+          # Check health endpoint
+          response=$(curl -s -H "x-api-key: mySuperSecretKey" http://localhost:3000/health)
+          echo "Health response: $response"
+          
+          # Check if response contains expected message
+          if echo "$response" | grep -q "WhatsApp Transfer VVIP is running"; then
+            echo "✅ Health check passed - API is responding correctly"
+          else
+            echo "❌ Health check failed - API is not responding correctly"
+            exit 1
+          fi
+          
+          # Check PM2 status
+          echo "📊 PM2 Status:"
+          pm2 status
+          
+          # Show recent logs
+          echo "📋 Recent logs:"
+          pm2 logs whatsapp-vvip --lines 5 --nostream || true
+          
+    - name: 📧 Notify deployment result
+      if: always()
+      run: |
+        if [ "${{ job.status }}" == "success" ]; then
+          echo "✅ 🎉 Deployment completed successfully!"
+          echo "🌐 API is now available at: http://${{ secrets.HOST }}:3000"
+          echo "📊 Health endpoint: http://${{ secrets.HOST }}:3000/health"
+        else
+          echo "❌ 💥 Deployment failed!"
+          echo "Please check the logs and fix any issues."
+        fi
+
+  rollback:
+    runs-on: ubuntu-latest
+    if: failure() && (github.event_name == 'push' && github.ref == 'refs/heads/main')
+    needs: deploy
+    
+    steps:
+    - name: 🔄 Emergency Rollback
+      uses: appleboy/ssh-action@v1.0.3
+      with:
+        host: ${{ secrets.HOST }}
+        username: ${{ secrets.USERNAME }}
+        key: ${{ secrets.SSH_PRIVATE_KEY }}
+        port: 22
+        script: |
+          echo "🚨 Emergency rollback initiated..."
+          
+          BACKUP_DIR="/home/ubuntu/backups"
+          
+          if [ -f "$BACKUP_DIR/latest_backup.txt" ]; then
+            backup_path=$(cat "$BACKUP_DIR/latest_backup.txt")
+            
+            if [ -d "$backup_path" ]; then
+              echo "🔄 Rolling back to: $backup_path"
+              
+              # Stop current application
+              pm2 stop whatsapp-vvip || true
+              
+              # Remove current application
+              rm -rf /home/ubuntu/taxi-app-whatsapp
+              
+              # Restore from backup
+              cp -r "$backup_path" /home/ubuntu/taxi-app-whatsapp
+              
+              # Restart application
+              cd /home/ubuntu/taxi-app-whatsapp
+              pm2 restart whatsapp-vvip || pm2 start ecosystem.config.js
+              
+              echo "✅ Rollback completed"
+            else
+              echo "❌ Backup directory not found"
+            fi
+          else
+            echo "❌ No backup information found"
+          fi

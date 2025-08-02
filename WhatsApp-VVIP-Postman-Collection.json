@@ -1,0 +1,622 @@
+{
+	"info": {
+		"_postman_id": "whatsapp-vvip-api-collection",
+		"name": "WhatsApp Transfer VVIP - API Collection",
+		"description": "Collection complète pour tester l'API WhatsApp Transfer VVIP déployée sur Oracle Cloud",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"auth": {
+		"type": "apikey",
+		"apikey": [
+			{
+				"key": "key",
+				"value": "x-api-key",
+				"type": "string"
+			},
+			{
+				"key": "value",
+				"value": "mySuperSecretKey",
+				"type": "string"
+			},
+			{
+				"key": "in",
+				"value": "header",
+				"type": "string"
+			}
+		]
+	},
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://79.72.25.202",
+			"type": "string"
+		},
+		{
+			"key": "api_key",
+			"value": "mySuperSecretKey",
+			"type": "string"
+		},
+		{
+			"key": "test_phone",
+			"value": "+212600000000",
+			"type": "string"
+		}
+	],
+	"item": [
+		{
+			"name": "🏥 Health & Status",
+			"item": [
+				{
+					"name": "Health Check",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-api-key",
+								"value": "{{api_key}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/health",
+							"host": ["{{base_url}}"],
+							"path": ["health"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Session Status - All",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-api-key",
+								"value": "{{api_key}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/whatsapp/sessions/status",
+							"host": ["{{base_url}}"],
+							"path": ["api", "whatsapp", "sessions", "status"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Session Status - Specific",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-api-key",
+								"value": "{{api_key}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/whatsapp/session/vip-session/status",
+							"host": ["{{base_url}}"],
+							"path": ["api", "whatsapp", "session", "vip-session", "status"]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "📱 Messages de Base",
+			"item": [
+				{
+					"name": "Send Template Message",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "x-api-key",
+								"value": "{{api_key}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"senderId\": \"vip-session\",\n  \"recipients\": [\"{{test_phone}}\"],\n  \"template\": \"Bonjour {{name}}, bienvenue chez {{company}}! 🎉\\n\\nVotre service {{service}} est maintenant actif.\",\n  \"params\": [\n    {\n      \"name\": \"Ahmed\",\n      \"company\": \"VIP Transfer Morocco\",\n      \"service\": \"Transport Premium\"\n    }\n  ]\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/whatsapp/send",
+							"host": ["{{base_url}}"],
+							"path": ["api", "whatsapp", "send"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Send Rich Message",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "x-api-key",
+								"value": "{{api_key}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"senderId\": \"vip-session\",\n  \"recipients\": [\"{{test_phone}}\"],\n  \"messageData\": {\n    \"text\": \"🚗 *VIP Transfer Morocco*\\n\\n✨ Service de transport premium\\n🌟 Véhicules de luxe\\n⏰ Ponctualité garantie\\n\\n🌐 Réservez maintenant: https://vip-transfer-morocco.com\\n📞 Contact: +212 600 111 222\",\n    \"options\": {\n      \"linkPreview\": true\n    }\n  }\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/whatsapp/send-rich-message",
+							"host": ["{{base_url}}"],
+							"path": ["api", "whatsapp", "send-rich-message"]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "📊 Fonctionnalités Avancées",
+			"item": [
+				{
+					"name": "Send Poll",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "x-api-key",
+								"value": "{{api_key}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"senderId\": \"vip-session\",\n  \"recipients\": [\"{{test_phone}}\"],\n  \"pollData\": {\n    \"question\": \"Quelle est votre destination préférée au Maroc?\",\n    \"options\": [\n      \"Casablanca\",\n      \"Rabat\",\n      \"Marrakech\",\n      \"Agadir\",\n      \"Fès\",\n      \"Tanger\"\n    ]\n  }\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/whatsapp/send-poll",
+							"host": ["{{base_url}}"],
+							"path": ["api", "whatsapp", "send-poll"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Send Location",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "x-api-key",
+								"value": "{{api_key}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"senderId\": \"vip-session\",\n  \"recipients\": [\"{{test_phone}}\"],\n  \"locationData\": {\n    \"latitude\": 33.5731,\n    \"longitude\": -7.5898,\n    \"name\": \"Aéroport Mohammed V Casablanca\",\n    \"address\": \"Nouaceur, Casablanca 27000, Maroc\"\n  }\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/whatsapp/send-location",
+							"host": ["{{base_url}}"],
+							"path": ["api", "whatsapp", "send-location"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Send Contact Card",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "x-api-key",
+								"value": "{{api_key}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"senderId\": \"vip-session\",\n  \"recipients\": [\"{{test_phone}}\"],\n  \"contactData\": {\n    \"name\": \"VIP Transfer Support\",\n    \"phone\": \"+212600111222\",\n    \"email\": \"support@vip-transfer.ma\",\n    \"organization\": \"VIP Transfer Morocco\"\n  }\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/whatsapp/send-contact",
+							"host": ["{{base_url}}"],
+							"path": ["api", "whatsapp", "send-contact"]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "📋 Templates Prédéfinis",
+			"item": [
+				{
+					"name": "Welcome Message",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "x-api-key",
+								"value": "{{api_key}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"senderId\": \"vip-session\",\n  \"recipients\": [\"{{test_phone}}\"],\n  \"welcomeData\": {\n    \"name\": \"Ahmed Benali\",\n    \"company\": \"VIP Transfer Morocco\",\n    \"support_contact\": \"+212600111222\"\n  }\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/whatsapp/templates/welcome",
+							"host": ["{{base_url}}"],
+							"path": ["api", "whatsapp", "templates", "welcome"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Order Confirmation",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "x-api-key",
+								"value": "{{api_key}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"senderId\": \"vip-session\",\n  \"recipients\": [\"{{test_phone}}\"],\n  \"orderData\": {\n    \"orderNumber\": \"VIP-2025-001\",\n    \"customerName\": \"Ahmed Benali\",\n    \"items\": [\n      \"Transfer Aéroport Mohammed V → Hôtel Marriott\",\n      \"Service Premium avec chauffeur\",\n      \"Véhicule Mercedes Class S\"\n    ],\n    \"total\": \"450 DH\",\n    \"deliveryTime\": \"14:30\"\n  }\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/whatsapp/templates/order-confirmation",
+							"host": ["{{base_url}}"],
+							"path": ["api", "whatsapp", "templates", "order-confirmation"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Promotion Template",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "x-api-key",
+								"value": "{{api_key}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"senderId\": \"vip-session\",\n  \"recipients\": [\"{{test_phone}}\"],\n  \"promoData\": {\n    \"title\": \"Offre Spéciale Été 2025\",\n    \"description\": \"25% de réduction sur tous les transferts aéroport\",\n    \"discount\": \"25%\",\n    \"code\": \"ETE25\",\n    \"validUntil\": \"31/08/2025\"\n  }\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/whatsapp/templates/promotion",
+							"host": ["{{base_url}}"],
+							"path": ["api", "whatsapp", "templates", "promotion"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delivery Notification",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "x-api-key",
+								"value": "{{api_key}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"senderId\": \"vip-session\",\n  \"recipients\": [\"{{test_phone}}\"],\n  \"deliveryData\": {\n    \"orderNumber\": \"VIP-2025-001\",\n    \"customerName\": \"Ahmed Benali\",\n    \"driverName\": \"Mohammed\",\n    \"driverPhone\": \"+212600555777\",\n    \"vehicleInfo\": \"Mercedes Class S - Noir - ABC-1234\",\n    \"estimatedTime\": \"10 minutes\",\n    \"location\": \"Devant l'entrée principale\"\n  }\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/whatsapp/templates/delivery-notification",
+							"host": ["{{base_url}}"],
+							"path": ["api", "whatsapp", "templates", "delivery-notification"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Appointment Reminder",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "x-api-key",
+								"value": "{{api_key}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"senderId\": \"vip-session\",\n  \"recipients\": [\"{{test_phone}}\"],\n  \"appointmentData\": {\n    \"customerName\": \"Ahmed Benali\",\n    \"appointmentDate\": \"05/08/2025\",\n    \"appointmentTime\": \"14:30\",\n    \"service\": \"Transfer Aéroport\",\n    \"location\": \"Aéroport Mohammed V\",\n    \"confirmationNumber\": \"CONF-789\"\n  }\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/whatsapp/templates/appointment-reminder",
+							"host": ["{{base_url}}"],
+							"path": ["api", "whatsapp", "templates", "appointment-reminder"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Payment Request",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "x-api-key",
+								"value": "{{api_key}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"senderId\": \"vip-session\",\n  \"recipients\": [\"{{test_phone}}\"],\n  \"paymentData\": {\n    \"customerName\": \"Ahmed Benali\",\n    \"invoiceNumber\": \"INV-2025-001\",\n    \"amount\": \"450 DH\",\n    \"dueDate\": \"10/08/2025\",\n    \"paymentLink\": \"https://pay.vip-transfer.ma/inv-001\",\n    \"service\": \"Transfer Premium Aéroport\"\n  }\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/whatsapp/templates/payment-request",
+							"host": ["{{base_url}}"],
+							"path": ["api", "whatsapp", "templates", "payment-request"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Customer Satisfaction",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "x-api-key",
+								"value": "{{api_key}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"senderId\": \"vip-session\",\n  \"recipients\": [\"{{test_phone}}\"],\n  \"satisfactionData\": {\n    \"customerName\": \"Ahmed Benali\",\n    \"service\": \"Transfer Premium\",\n    \"surveyLink\": \"https://survey.vip-transfer.ma/feedback\",\n    \"orderNumber\": \"VIP-2025-001\"\n  }\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/whatsapp/templates/customer-satisfaction",
+							"host": ["{{base_url}}"],
+							"path": ["api", "whatsapp", "templates", "customer-satisfaction"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Newsletter",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "x-api-key",
+								"value": "{{api_key}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"senderId\": \"vip-session\",\n  \"recipients\": [\"{{test_phone}}\"],\n  \"newsletterData\": {\n    \"title\": \"Newsletter VIP Transfer - Août 2025\",\n    \"content\": \"Découvrez nos nouveaux services et destinations\",\n    \"highlights\": [\n      \"Nouveau service vers Agadir\",\n      \"Véhicules électriques disponibles\",\n      \"Programme de fidélité lancé\"\n    ],\n    \"readMoreLink\": \"https://newsletter.vip-transfer.ma/aug2025\"\n  }\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/whatsapp/templates/newsletter",
+							"host": ["{{base_url}}"],
+							"path": ["api", "whatsapp", "templates", "newsletter"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Emergency Alert",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "x-api-key",
+								"value": "{{api_key}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"senderId\": \"vip-session\",\n  \"recipients\": [\"{{test_phone}}\"],\n  \"emergencyData\": {\n    \"alertType\": \"Retard Transport\",\n    \"message\": \"Votre chauffeur sera en retard de 15 minutes à cause des embouteillages\",\n    \"contactNumber\": \"+212600111222\",\n    \"alternativeOptions\": \"Un autre véhicule peut être envoyé si nécessaire\"\n  }\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/whatsapp/templates/emergency-alert",
+							"host": ["{{base_url}}"],
+							"path": ["api", "whatsapp", "templates", "emergency-alert"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Birthday Wishes",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "x-api-key",
+								"value": "{{api_key}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"senderId\": \"vip-session\",\n  \"recipients\": [\"{{test_phone}}\"],\n  \"birthdayData\": {\n    \"name\": \"Ahmed Benali\",\n    \"discountCode\": \"BIRTHDAY25\",\n    \"discountPercent\": \"25%\",\n    \"validUntil\": \"15/08/2025\"\n  }\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/whatsapp/templates/birthday-wishes",
+							"host": ["{{base_url}}"],
+							"path": ["api", "whatsapp", "templates", "birthday-wishes"]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "🔧 Session Management",
+			"item": [
+				{
+					"name": "Disconnect Session",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "x-api-key",
+								"value": "{{api_key}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/whatsapp/session/vip-session/disconnect",
+							"host": ["{{base_url}}"],
+							"path": ["api", "whatsapp", "session", "vip-session", "disconnect"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Clear Session",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "x-api-key",
+								"value": "{{api_key}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/whatsapp/session/vip-session/clear",
+							"host": ["{{base_url}}"],
+							"path": ["api", "whatsapp", "session", "vip-session", "clear"]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"// Auto-set timestamp for requests",
+					"pm.globals.set('timestamp', Math.floor(Date.now() / 1000));"
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"// Common tests for all requests",
+					"pm.test('Response time is acceptable', function () {",
+					"    pm.expect(pm.response.responseTime).to.be.below(5000);",
+					"});",
+					"",
+					"pm.test('Response has correct content-type', function () {",
+					"    pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json');",
+					"});",
+					"",
+					"// Test for successful responses",
+					"if (pm.response.code === 200) {",
+					"    pm.test('Status code is 200 OK', function () {",
+					"        pm.response.to.have.status(200);",
+					"    });",
+					"}"
+				]
+			}
+		}
+	]
+}
