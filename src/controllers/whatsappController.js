@@ -1085,7 +1085,7 @@ ${originalPrice && savings > 0 ? `💸 Prix initial: ${originalPrice}€
 ${specialOffer ? `🎁 *Offre spéciale:*
 ${specialOffer}
 
-` : ''}🆘 *Urgence:* ${emergencyNumber || '+212 6XX XXX XXX'}
+` : ''}🆘 *Urgence:* ${emergencyNumber || '+212 621323085'}
 
 ✅ *Votre réservation est confirmée!*
 

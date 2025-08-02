@@ -1,0 +1,209 @@
+{
+  "info": {
+    "_postman_id": "taxi-booking-api-collection",
+    "name": "🚖 Taxi Booking WhatsApp API",
+    "description": "Collection complète pour tester l'API de confirmation de réservation taxi via WhatsApp",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "🏥 Health Check",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/health",
+          "host": ["{{base_url}}"],
+          "path": ["health"]
+        },
+        "description": "Vérification de l'état du service"
+      },
+      "response": []
+    },
+    {
+      "name": "🚖 Confirmation Réservation Taxi - Complète",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "x-api-key",
+            "value": "{{api_key}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"senderId\": \"taxi-app-instance\",\n  \"recipients\": [\"+212633030117\"],\n  \"bookingData\": {\n    \"transactionId\": \"TXN-2025-001234\",\n    \"pickup\": {\n      \"address\": \"Aéroport Mohammed V, Casablanca\",\n      \"coordinates\": {\n        \"lat\": 33.3676,\n        \"lng\": -7.5897\n      }\n    },\n    \"destination\": {\n      \"address\": \"Hôtel Hyatt Regency, Casablanca\",\n      \"coordinates\": {\n        \"lat\": 33.5731,\n        \"lng\": -7.5898\n      }\n    },\n    \"price\": 180,\n    \"originalPrice\": 220,\n    \"couponCode\": \"WELCOME20\",\n    \"discount\": 40,\n    \"driver\": {\n      \"firstName\": \"Ahmed\",\n      \"lastName\": \"Benali\",\n      \"phone\": \"+212661234567\",\n      \"vehicleType\": \"Mercedes Classe E\",\n      \"plateNumber\": \"123456-A-78\",\n      \"rating\": 4.8\n    },\n    \"passengers\": 2,\n    \"luggage\": 3,\n    \"specialOffer\": \"Première course gratuite pour les nouveaux clients!\",\n    \"emergencyNumber\": \"+212522123456\",\n    \"estimatedTime\": \"35 minutes\",\n    \"bookingTime\": \"2025-08-02 14:30:00\",\n    \"notes\": \"Client VIP - Service premium\"\n  }\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/whatsapp/taxi/booking-confirmation",
+          "host": ["{{base_url}}"],
+          "path": ["api", "whatsapp", "taxi", "booking-confirmation"]
+        },
+        "description": "Envoi d'une confirmation de réservation taxi avec toutes les informations complètes"
+      },
+      "response": []
+    },
+    {
+      "name": "🚖 Confirmation Réservation Taxi - Minimale",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "x-api-key",
+            "value": "{{api_key}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"senderId\": \"taxi-app-instance\",\n  \"recipients\": [\"+212621323085\"],\n  \"bookingData\": {\n    \"transactionId\": \"TXN-2025-001235\",\n    \"pickup\": \"Gare Casa-Port\",\n    \"destination\": \"Marina Shopping Center\",\n    \"price\": 45,\n    \"driver\": {\n      \"firstName\": \"Youssef\",\n      \"lastName\": \"Alami\",\n      \"phone\": \"+212667890123\"\n    },\n    \"emergencyNumber\": \"+212522123456\"\n  }\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/whatsapp/taxi/booking-confirmation",
+          "host": ["{{base_url}}"],
+          "path": ["api", "whatsapp", "taxi", "booking-confirmation"]
+        },
+        "description": "Envoi d'une confirmation de réservation taxi avec les informations minimales requises"
+      },
+      "response": []
+    },
+    {
+      "name": "🚖 Confirmation avec Promotion",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "x-api-key",
+            "value": "{{api_key}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"senderId\": \"taxi-app-instance\",\n  \"recipients\": [\"+212600123456\"],\n  \"bookingData\": {\n    \"transactionId\": \"TXN-2025-001236\",\n    \"pickup\": \"Centre-ville Rabat\",\n    \"destination\": \"Aéroport Rabat-Salé\",\n    \"price\": 120,\n    \"originalPrice\": 150,\n    \"couponCode\": \"AIRPORT30\",\n    \"discount\": 30,\n    \"driver\": {\n      \"firstName\": \"Karim\",\n      \"lastName\": \"Tazi\",\n      \"phone\": \"+212655789012\",\n      \"vehicleType\": \"BMW Série 3\"\n    },\n    \"passengers\": 1,\n    \"luggage\": 2,\n    \"specialOffer\": \"Réduction de 20% sur votre prochaine course aéroport!\",\n    \"emergencyNumber\": \"+212522123456\",\n    \"estimatedTime\": \"25 minutes\"\n  }\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/whatsapp/taxi/booking-confirmation",
+          "host": ["{{base_url}}"],
+          "path": ["api", "whatsapp", "taxi", "booking-confirmation"]
+        },
+        "description": "Confirmation avec promotion et réduction appliquée"
+      },
+      "response": []
+    },
+    {
+      "name": "📱 Message WhatsApp Simple",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "x-api-key",
+            "value": "{{api_key}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"senderId\": \"instance1\",\n  \"recipients\": [\"+212600000000\"],\n  \"template\": \"Bonjour {{name}}, votre taxi arrivera dans {{time}} minutes.\",\n  \"params\": [\n    { \"name\": \"Ali\", \"time\": \"5\" }\n  ]\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/whatsapp/send",
+          "host": ["{{base_url}}"],
+          "path": ["api", "whatsapp", "send"]
+        },
+        "description": "Envoi d'un message WhatsApp simple avec template"
+      },
+      "response": []
+    },
+    {
+      "name": "📋 Ajouter Template",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "x-api-key",
+            "value": "{{api_key}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"templateName\": \"taxi-arrival\",\n  \"template\": \"🚖 Votre taxi {{driverName}} ({{vehicleType}}) arrive dans {{minutes}} minutes. Plaque: {{plateNumber}}\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/template/",
+          "host": ["{{base_url}}"],
+          "path": ["api", "template", ""]
+        },
+        "description": "Ajouter un nouveau template personnalisé"
+      },
+      "response": []
+    },
+    {
+      "name": "📋 Récupérer Templates",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "x-api-key",
+            "value": "{{api_key}}"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/template/",
+          "host": ["{{base_url}}"],
+          "path": ["api", "template", ""]
+        },
+        "description": "Récupérer tous les templates disponibles"
+      },
+      "response": []
+    },
+    {
+      "name": "🔄 Restaurer Sessions",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "x-api-key",
+            "value": "{{api_key}}"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/whatsapp/restore-sessions",
+          "host": ["{{base_url}}"],
+          "path": ["api", "whatsapp", "restore-sessions"]
+        },
+        "description": "Restaurer toutes les sessions WhatsApp"
+      },
+      "response": []
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:3000",
+      "description": "URL de base de l'API"
+    },
+    {
+      "key": "api_key",
+      "value": "mySuperSecretKey",
+      "description": "Clé API pour l'authentification"
+    }
+  ]
+}
