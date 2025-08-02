@@ -1,14 +1,17 @@
-# whatsappTransferVVIP
+# 🚖 WhatsApp Transfer VVIP - API de Messagerie Taxi
 
-whatsappTransferVVIP is a Node.js microservice that facilitates sending WhatsApp messages via WhatsApp Web. This service acts as an external microservice to be integrated with another API (apibackendtransfer) for delegating the task of sending messages.
+whatsappTransferVVIP est un microservice Node.js spécialisé qui facilite l'envoi de messages WhatsApp via WhatsApp Web. Ce service agit comme un microservice externe à intégrer avec votre API de transfert taxi pour déléguer la tâche d'envoi de messages professionnels.
 
-## Features
+## ✨ Fonctionnalités
 
-- Connects to WhatsApp Web using the `whatsapp-web.js` library.
-- Supports sending messages with customizable templates.
-- Manages multiple WhatsApp sessions based on `senderId`.
-- In-memory storage for templates and session data.
-- Simple security mechanism using API key authentication.
+- 🔗 Connexion à WhatsApp Web via la bibliothèque `whatsapp-web.js`
+- 📱 Envoi de messages avec templates personnalisables
+- 🚖 **Endpoint spécialisé pour confirmations de réservation taxi**
+- 👥 Gestion de sessions WhatsApp multiples basées sur `senderId`
+- 💾 Stockage en mémoire pour templates et données de session
+- 🔐 Mécanisme de sécurité simple avec authentification par clé API
+- 📋 Persistence automatique des sessions WhatsApp
+- 📊 Logging détaillé et monitoring
 
 ## Project Structure
 
@@ -58,13 +61,52 @@ npm start
 
 The service will be available at `http://localhost:3000`.
 
-## API Endpoints
+## 📡 API Endpoints
 
-### Send WhatsApp Message
+### 🏥 Health Check
+- **GET** `/health` - Vérification de l'état du service
 
+### 🚖 Endpoints Taxi (Nouveauté)
+
+#### Confirmation de Réservation Taxi
+- **POST** `/api/whatsapp/taxi/booking-confirmation`
+  
+  **Description**: Envoie une confirmation de réservation taxi professionnelle avec tous les détails.
+  
+  **Request Body**:
+  ```json
+  {
+    "senderId": "taxi-app-instance",
+    "recipients": ["+212633030117"],
+    "bookingData": {
+      "transactionId": "TXN-2025-001234",
+      "pickup": "Aéroport Mohammed V, Casablanca",
+      "destination": "Hôtel Hyatt Regency, Casablanca",
+      "price": 180,
+      "originalPrice": 220,
+      "couponCode": "WELCOME20",
+      "discount": 40,
+      "driver": {
+        "firstName": "Ahmed",
+        "lastName": "Benali",
+        "phone": "+212661234567",
+        "vehicleType": "Mercedes Classe E"
+      },
+      "passengers": 2,
+      "luggage": 3,
+      "specialOffer": "Première course gratuite!",
+      "emergencyNumber": "+212522123456",
+      "estimatedTime": "35 minutes"
+    }
+  }
+  ```
+
+### 📱 Endpoints WhatsApp Génériques
+
+#### Envoi de Message Simple
 - **POST** `/api/whatsapp/send`
   
-  Request Body:
+  **Request Body**:
   ```json
   {
     "senderId": "instance1",
@@ -77,17 +119,46 @@ The service will be available at `http://localhost:3000`.
   }
   ```
 
-### Add Custom Template (Optional)
+#### Envoi de Message avec Template
+- **POST** `/api/whatsapp/send-template`
 
-- **POST** `/api/template/add`
+#### Envoi de Promotion
+- **POST** `/api/whatsapp/send-promotion`
+
+#### Envoi de Rappel de Rendez-vous
+- **POST** `/api/whatsapp/send-appointment-reminder`
+
+#### Gestion des Sessions
+- **POST** `/api/whatsapp/restore-sessions` - Restaurer toutes les sessions
+- **GET** `/api/whatsapp/session-status/:senderId` - Statut d'une session
+
+### 📋 Endpoints Templates
+
+#### Ajouter un Template Personnalisé
+- **POST** `/api/template/`
   
-  Request Body:
+  **Request Body**:
   ```json
   {
     "templateName": "template1",
-    "template": "Your custom template here."
+    "template": "Votre template personnalisé ici."
   }
   ```
+
+#### Récupérer tous les Templates
+- **GET** `/api/template/`
+
+## 📖 Documentation Détaillée
+
+- 📄 **[TAXI_BOOKING_API.md](./TAXI_BOOKING_API.md)** - Guide complet pour l'endpoint de confirmation taxi
+- 📄 **[SESSION_PERSISTENCE.md](./SESSION_PERSISTENCE.md)** - Documentation sur la persistence des sessions
+
+## 🧪 Tests
+
+Utilisez les fichiers de test fournis :
+- `test-taxi-booking.js` - Test de l'endpoint de confirmation taxi
+- `test-api.js` - Tests généraux de l'API
+- `test-full.js` - Tests complets
 
 ## Security
 

@@ -35,4 +35,7 @@ router.post('/templates/newsletter', authMiddleware, (req, res) => whatsappContr
 router.post('/templates/emergency-alert', authMiddleware, (req, res) => whatsappController.sendEmergencyAlert(req, res));
 router.post('/templates/birthday-wishes', authMiddleware, (req, res) => whatsappController.sendBirthdayWishes(req, res));
 
+// Endpoint spécialisé pour l'application de transfert taxi
+router.post('/taxi/booking-confirmation', authMiddleware, (req, res) => whatsappController.sendTaxiBookingConfirmation(req, res));
+
 export default router;

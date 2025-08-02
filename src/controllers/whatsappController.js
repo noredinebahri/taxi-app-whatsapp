@@ -1023,6 +1023,85 @@ _Avec toute notre amitié - ${companyName}_`;
             return res.status(500).json({ error: 'Failed to send birthday wishes' });
         }
     }
+
+    // Template: Confirmation de réservation taxi
+    async sendTaxiBookingConfirmation(req, res) {
+        const { senderId = 'default', recipients, bookingData } = req.body;
+
+        if (!recipients || !bookingData) {
+            return res.status(400).json({ 
+                error: 'Missing required fields: recipients, bookingData' 
+            });
+        }
+
+        try {
+            const { 
+                transactionId,
+                pickup,
+                destination,
+                price,
+                originalPrice,
+                couponCode,
+                discount,
+                driver,
+                passengers,
+                luggage,
+                specialOffer,
+                emergencyNumber,
+                estimatedTime,
+                bookingTime
+            } = bookingData;
+
+            // Calcul du prix avec réduction si applicable
+            const finalPrice = price || originalPrice;
+            const savings = originalPrice && price ? (originalPrice - price) : 0;
+
+            const message = `🚖 *CONFIRMATION DE RÉSERVATION TAXI*
+
+📋 *Détails de la course:*
+🆔 Transaction: #${transactionId || 'N/A'}
+📅 Réservé le: ${bookingTime || new Date().toLocaleString('fr-FR')}
+
+📍 *Trajet:*
+🟢 Départ: ${pickup?.address || pickup || 'Non spécifié'}
+🔴 Arrivée: ${destination?.address || destination || 'Non spécifié'}
+⏱️ Durée estimée: ${estimatedTime || 'À déterminer'}
+
+👨‍💼 *Votre chauffeur:*
+👤 ${driver?.firstName || ''} ${driver?.lastName || 'Chauffeur assigné'}
+📱 Tél: ${driver?.phone || 'Sera communiqué'}
+🚗 Véhicule: ${driver?.vehicleType || 'Berline'}
+
+👥 *Informations passagers:*
+🧳 Passagers: ${passengers || 1}
+💼 Bagages: ${luggage || 0}
+
+💰 *Tarification:*
+${originalPrice && savings > 0 ? `💸 Prix initial: ${originalPrice}€
+🎟️ Code promo: ${couponCode || 'REDUCTION'}
+💚 Économie: -${savings}€
+` : ''}💵 *Prix final: ${finalPrice}€*
+
+${specialOffer ? `🎁 *Offre spéciale:*
+${specialOffer}
+
+` : ''}🆘 *Urgence:* ${emergencyNumber || '+212 6XX XXX XXX'}
+
+✅ *Votre réservation est confirmée!*
+
+_Merci de votre confiance. Bon voyage!_ 🌟`;
+
+            await this.whatsappService.sendMessages(senderId, recipients, [message]);
+            console.log('Taxi booking confirmation sent successfully');
+            return res.status(200).json({ 
+                message: 'Taxi booking confirmation sent successfully',
+                transactionId: transactionId
+            });
+        } catch (error) {
+            console.error('Error sending taxi booking confirmation:', error);
+            return res.status(500).json({ error: 'Failed to send taxi booking confirmation' });
+        }
+    }
 }
 
 export default WhatsAppController;
