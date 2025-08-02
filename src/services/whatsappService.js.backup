@@ -1,0 +1,231 @@
+import pkg from 'whatsapp-web.js';
+import qrcode from 'qrcode-terminal';
+import logger from '../utils/logger.js';
+import fs from 'fs';
+import path from 'path';
+
+const { Client, LocalAuth } = pkg;
+
+class WhatsAppService {
+    constructor() {
+        this.sessions = new Map();
+        // Only enable test mode if explicitly set to 'true'
+        this.isTestMode = process.env.WHATSAPP_TEST_MODE === 'true';
+        console.log(`🔧 WhatsApp Service initialized - Test Mode: ${this.isTestMode}`);
+        
+        // DO NOT auto-initialize on startup - only when needed
+        // This prevents unnecessary QR code generation
+    }
+
+    // Check if session data exists for a given senderId
+    hasStoredSession(senderId) {
+        const sessionPath = path.join(process.cwd(), '.wwebjs_auth', `session-${senderId}`);
+        try {
+            return fs.existsSync(sessionPath) && fs.readdirSync(sessionPath).length > 0;
+        } catch (error) {
+            return false;
+        }
+    }async connect(senderId) {
+        if (this.isTestMode) {
+            console.log(`🧪 TEST MODE: Simulating WhatsApp connection for ${senderId}`);
+            this.sessions.set(senderId, { connected: true, testMode: true });
+            return;
+        }
+
+        if (!this.sessions.has(senderId)) {
+            console.log(`🔄 Initializing WhatsApp client for ${senderId}...`);
+            
+            const client = new Client({
+                authStrategy: new LocalAuth({
+                    clientId: senderId
+                }),
+                puppeteer: {
+                    headless: true,
+                    args: [
+                        '--no-sandbox',
+                        '--disable-setuid-sandbox',
+                        '--disable-dev-shm-usage',
+                        '--disable-accelerated-2d-canvas',
+                        '--no-first-run',
+                        '--no-zygote',
+                        '--disable-gpu'
+                    ]
+                }
+            });
+
+            // Create a promise that resolves when client is ready
+            const readyPromise = new Promise((resolve, reject) => {
+                let qrDisplayed = false;
+                let isAuthenticated = false;
+                
+                client.on('qr', (qr) => {
+                    qrDisplayed = true;
+                    console.log(`\n📱 QR Code for ${senderId}:`);
+                    console.log(`Raw QR: ${qr}`);
+                    console.log('\n🔍 Scan this QR code with your WhatsApp:');
+                    qrcode.generate(qr, { small: true });
+                    console.log('\n⚠️  IMPORTANT: Scan this QR code to link your WhatsApp!');
+                    console.log('Open WhatsApp → Settings → Linked Devices → Link a Device');
+                });
+
+                client.on('loading_screen', (percent, message) => {
+                    console.log(`📱 Loading: ${percent}% - ${message}`);
+                });
+
+                client.on('ready', () => {
+                    console.log(`✅ WhatsApp client ${senderId} is ready and authenticated!`);
+                    console.log(`💾 Session saved - no need to scan QR code next time!`);
+                    resolve();
+                });                client.on('authenticated', () => {
+                    isAuthenticated = true;
+                    console.log(`🔐 WhatsApp client ${senderId} authenticated from saved session!`);
+                    console.log(`💾 Using cached session - no QR code needed!`);
+                });
+
+                client.on('auth_failure', (msg) => {
+                    console.error(`❌ Authentication failed for ${senderId}:`, msg);
+                    console.log(`🔄 You may need to scan the QR code again`);
+                    reject(new Error(`Authentication failed: ${msg}`));
+                });
+
+                client.on('disconnected', (reason) => {
+                    console.log(`⚠️  WhatsApp client ${senderId} disconnected:`, reason);
+                    if (reason === 'LOGOUT' || reason === 'CONFLICT_TAB') {
+                        console.log(`🗑️  Session invalidated - you'll need to scan QR code again`);
+                    }
+                    reject(new Error(`Client disconnected: ${reason}`));
+                });
+
+                // Timeout after 2 minutes if not ready
+                setTimeout(() => {
+                    if (!isAuthenticated && !qrDisplayed) {
+                        reject(new Error('WhatsApp client failed to initialize within 2 minutes'));
+                    } else if (qrDisplayed && !isAuthenticated) {
+                        reject(new Error('QR code was not scanned within 2 minutes. Please restart and try again.'));
+                    }
+                }, 120000);
+            });
+
+            try {
+                // Initialize the client
+                await client.initialize();
+                
+                // Wait for it to be ready (QR scanned and authenticated or loaded from cache)
+                await readyPromise;
+                
+                this.sessions.set(senderId, client);
+                console.log(`✅ Client ${senderId} fully initialized and ready to send messages!`);
+            } catch (error) {
+                console.error(`❌ Failed to initialize client ${senderId}:`, error.message);
+                throw error;
+            }
+        } else {
+            console.log(`♻️  Using existing WhatsApp session for ${senderId}`);
+        }
+    }async sendMessages(senderId, recipients, messages) {
+        try {
+            console.log(`📤 Attempting to send messages via ${senderId}...`);
+            await this.connect(senderId);
+            const client = this.sessions.get(senderId);
+
+            if (!client) {
+                throw new Error(`No WhatsApp client found for ${senderId}`);
+            }
+
+            if (this.isTestMode) {
+                console.log(`🧪 TEST MODE: Simulating message sending`);
+                for (let i = 0; i < recipients.length; i++) {
+                    const message = messages[i];
+                    const recipient = recipients[i];
+                    console.log(`📱 [TEST] Would send to ${recipient}: "${message}"`);
+                }
+                return;
+            }
+
+            // Wait a bit for WhatsApp Web to be fully ready
+            console.log(`⏳ Waiting for WhatsApp Web to be fully ready...`);
+            await new Promise(resolve => setTimeout(resolve, 2000));
+
+            console.log(`📋 Sending ${messages.length} messages to ${recipients.length} recipients`);
+
+            for (let i = 0; i < recipients.length; i++) {
+                const message = messages[i];
+                const recipient = recipients[i];
+                
+                try {
+                    console.log(`📱 Sending to ${recipient}: "${message}"`);
+                    
+                    // Format phone number properly for WhatsApp
+                    const formattedNumber = this.formatPhoneNumber(recipient);
+                    console.log(`📞 Formatted number: ${formattedNumber}`);
+                    
+                    // Check if the number is valid before sending
+                    const numberId = await client.getNumberId(formattedNumber);
+                    if (!numberId) {
+                        console.error(`❌ Invalid WhatsApp number: ${recipient}`);
+                        continue;
+                    }
+                    
+                    await client.sendMessage(formattedNumber, message);
+                    console.log(`✅ Message sent successfully to ${recipient}`);
+                    
+                    // Wait between messages to avoid rate limiting
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+                    
+                } catch (error) {
+                    console.error(`❌ Failed to send message to ${recipient}:`, error.message);
+                    // Continue with other recipients instead of throwing
+                }
+            }
+        } catch (error) {
+            console.error(`❌ Error in sendMessages:`, error);
+            throw error;
+        }
+    }    formatPhoneNumber(number) {
+        // Remove any spaces, dashes, or parentheses
+        let cleaned = number.replace(/[\s\-\(\)]/g, '');
+        
+        // Ensure it starts with the country code without +
+        if (cleaned.startsWith('+')) {
+            cleaned = cleaned.substring(1);
+        }
+        
+        // For Morocco numbers, ensure proper format
+        if (cleaned.startsWith('212')) {
+            // Morocco country code is already present
+            return `${cleaned}@c.us`;
+        } else if (cleaned.startsWith('0')) {
+            // Remove leading 0 and add Morocco country code
+            return `212${cleaned.substring(1)}@c.us`;
+        } else if (cleaned.startsWith('6') || cleaned.startsWith('7')) {
+            // Mobile number without country code, add Morocco code
+            return `212${cleaned}@c.us`;
+        }
+        
+        // Default format
+        return `${cleaned}@c.us`;
+    }
+
+    async sendMessage(senderId, recipients, template, params) {
+        await this.connect(senderId);
+        const client = this.sessions.get(senderId);
+
+        for (let i = 0; i < recipients.length; i++) {
+            const message = this.replaceTemplateVariables(template, params[i]);
+            try {
+                await client.sendMessage(recipients[i], message);
+                console.log(`Message sent to ${recipients[i]}: ${message}`);
+            } catch (error) {
+                console.error(`Failed to send message to ${recipients[i]}: ${error}`);
+            }
+        }
+    }
+
+    replaceTemplateVariables(template, params) {
+        return Object.keys(params).reduce((msg, key) => {
+            return msg.replace(new RegExp(`{{${key}}}`, 'g'), params[key]);
+        }, template);
+    }
+}
+
+export default WhatsAppService;
