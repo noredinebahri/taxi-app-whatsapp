@@ -35,7 +35,6 @@ jobs:
     - name: 🔍 Run security audit
       run: npm audit --audit-level=moderate
       continue-on-error: true
-
   deploy:
     needs: test
     runs-on: ubuntu-latest
@@ -43,7 +42,7 @@ jobs:
     
     environment:
       name: production
-      url: http://${{ secrets.HOST }}:3000
+      url: "http://${{ secrets.HOST }}:3000"
       
     steps:
     - name: 📥 Checkout code
