@@ -35,10 +35,8 @@ router.post('/templates/newsletter', authMiddleware, (req, res) => whatsappContr
 router.post('/templates/emergency-alert', authMiddleware, (req, res) => whatsappController.sendEmergencyAlert(req, res));
 router.post('/templates/birthday-wishes', authMiddleware, (req, res) => whatsappController.sendBirthdayWishes(req, res));
 
-// Endpoint spécialisé pour l'application de transfert taxi
 router.post('/templates/booking-confirmation', authMiddleware, (req, res) => whatsappController.sendTaxiBookingConfirmation(req, res));
 
-// Endpoint pour confirmation de réception de demande de transfert d'argent
-router.post('/money-transfer/confirmation', authMiddleware, (req, res) => whatsappController.sendMoneyTransferConfirmation(req, res));
+router.post('/templates/money-transfer-confirmation', authMiddleware, (req, res) => whatsappController.sendMoneyTransferConfirmation(req, res));
 
 export default router;
