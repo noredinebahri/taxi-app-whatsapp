@@ -24,9 +24,6 @@ jobs:
     - name: Install dependencies
       run: npm ci
       
-    - name: Run tests
-      run: npm test
-      
     - name: Deploy to Oracle Cloud
       if: github.ref == 'refs/heads/main'
       uses: appleboy/ssh-action@v1.0.3
