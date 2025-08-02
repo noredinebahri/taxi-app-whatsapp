@@ -75,6 +75,19 @@ class WhatsAppController {
         }
     }
 
+    async restoreStoredSessions(req, res) {
+        try {
+            await this.whatsappService.restoreStoredSessions();
+            return res.status(200).json({ 
+                message: 'Session restoration initiated successfully',
+                note: 'Sessions are being restored in the background. Check individual session statuses for progress.'
+            });
+        } catch (error) {
+            console.error('Error restoring sessions:', error);
+            return res.status(500).json({ error: 'Failed to restore sessions' });
+        }
+    }
+
     // Nouveau endpoint pour envoyer des sondages
     async sendPoll(req, res) {
         const { senderId = 'default', recipients, pollData } = req.body;

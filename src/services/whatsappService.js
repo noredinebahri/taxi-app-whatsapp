@@ -10,6 +10,12 @@ class WhatsAppService {
     constructor() {
         this.sessions = new Map();
         this.isTestMode = process.env.NODE_ENV === 'test' || process.env.WHATSAPP_TEST_MODE === 'true';
+        this.autoRestoreSessions = process.env.AUTO_RESTORE_SESSIONS !== 'false'; // Default to true
+        
+        // Auto-restore sessions on startup if enabled
+        if (this.autoRestoreSessions && !this.isTestMode) {
+            this.restoreStoredSessions();
+        }
     }
 
     // Check if session data exists for a given senderId
@@ -22,13 +28,54 @@ class WhatsAppService {
         }
     }
 
+    // Restore all stored sessions on server startup
+    async restoreStoredSessions() {
+        try {
+            const authPath = path.join(process.cwd(), '.wwebjs_auth');
+            if (!fs.existsSync(authPath)) {
+                console.log('📂 No stored sessions found');
+                return;
+            }
+
+            const sessionDirs = fs.readdirSync(authPath);
+            const storedSessions = sessionDirs.filter(dir => dir.startsWith('session-'));
+            
+            if (storedSessions.length === 0) {
+                console.log('📂 No stored sessions found');
+                return;
+            }
+
+            console.log(`🔄 Found ${storedSessions.length} stored session(s), restoring...`);
+            
+            for (const sessionDir of storedSessions) {
+                const senderId = sessionDir.replace('session-', '');
+                try {
+                    console.log(`🔄 Restoring session for ${senderId}...`);
+                    // Don't await here to allow parallel restoration
+                    this.connect(senderId).catch(error => {
+                        console.error(`❌ Failed to restore session ${senderId}:`, error.message);
+                    });
+                } catch (error) {
+                    console.error(`❌ Error restoring session ${senderId}:`, error.message);
+                }
+            }
+        } catch (error) {
+            console.error('❌ Error during session restoration:', error);
+        }
+    }
+
     async connect(senderId) {
         if (this.isTestMode) {
             console.log(`🧪 TEST MODE: Simulating WhatsApp connection for ${senderId}`);
             this.sessions.set(senderId, { connected: true, testMode: true });
             return;
         }        if (!this.sessions.has(senderId)) {
-            console.log(`🔄 Initializing WhatsApp client for ${senderId}...`);
+            const hasStoredAuth = this.hasStoredSession(senderId);
+            if (hasStoredAuth) {
+                console.log(`🔄 Restoring WhatsApp session for ${senderId} from storage...`);
+            } else {
+                console.log(`🔄 Initializing new WhatsApp client for ${senderId}...`);
+            }
             
             const client = new Client({
                 authStrategy: new LocalAuth({
@@ -57,7 +104,12 @@ class WhatsAppService {
             });
 
             client.on('ready', () => {
-                console.log(`✅ WhatsApp client ${senderId} is ready!`);
+                const hasStoredAuth = this.hasStoredSession(senderId);
+                if (hasStoredAuth) {
+                    console.log(`✅ WhatsApp session ${senderId} restored and ready!`);
+                } else {
+                    console.log(`✅ WhatsApp client ${senderId} is ready!`);
+                }
             });
 
             client.on('authenticated', () => {

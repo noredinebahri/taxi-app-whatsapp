@@ -11,6 +11,7 @@ router.post('/send', authMiddleware, whatsappController.sendMessage.bind(whatsap
 // Session management
 router.get('/session/:senderId/status', whatsappController.getSessionStatus.bind(whatsappController));
 router.get('/sessions/status', whatsappController.getAllSessionStatuses.bind(whatsappController));
+router.post('/sessions/restore', whatsappController.restoreStoredSessions.bind(whatsappController));
 router.delete('/session/:senderId/disconnect', whatsappController.disconnectSession.bind(whatsappController));
 router.delete('/session/:senderId/clear', whatsappController.clearSession.bind(whatsappController));
 
