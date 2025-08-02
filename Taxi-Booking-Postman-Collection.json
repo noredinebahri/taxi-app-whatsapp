@@ -175,6 +175,87 @@
       "response": []
     },
     {
+      "name": "💰 Transfert d'Argent - Données Complètes",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "x-api-key",
+            "value": "{{api_key}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"senderId\": \"taxi-app-instance\",\n  \"recipients\": [\"+212633030117\"],\n  \"transferData\": {\n    \"transferId\": \"MT2024001234\",\n    \"beneficiary\": {\n      \"name\": \"Ahmed Taxi Service\",\n      \"city\": \"Casablanca, Maroc\",\n      \"phone\": \"+212 600 000 000\"\n    },\n    \"amount\": \"44.17\",\n    \"currency\": \"EUR\",\n    \"acceptedServices\": [\n      \"Western Union\",\n      \"MoneyGram\",\n      \"Ria Money Transfer\",\n      \"Autres services similaires\"\n    ],\n    \"acceptanceDelay\": \"2-4 heures\",\n    \"workingHours\": \"8h-20h\",\n    \"instructions\": [\n      \"Envoyez-nous le code de transfert par WhatsApp\",\n      \"Gardez le reçu jusqu'à confirmation\",\n      \"Le service sera confirmé après réception\"\n    ]\n  }\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/whatsapp/money-transfer/confirmation",
+          "host": ["{{base_url}}"],
+          "path": ["api", "whatsapp", "money-transfer", "confirmation"]
+        },
+        "description": "Envoi d'une confirmation de transfert d'argent avec toutes les informations complètes"
+      },
+      "response": []
+    },
+    {
+      "name": "💰 Transfert d'Argent - Données Minimales",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "x-api-key",
+            "value": "{{api_key}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"senderId\": \"taxi-app-instance\",\n  \"recipients\": [\"+212621323085\"],\n  \"transferData\": {\n    \"beneficiary\": {\n      \"name\": \"Ahmed Taxi Service\",\n      \"city\": \"Casablanca, Maroc\"\n    },\n    \"amount\": \"44.17\"\n  }\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/whatsapp/money-transfer/confirmation",
+          "host": ["{{base_url}}"],
+          "path": ["api", "whatsapp", "money-transfer", "confirmation"]
+        },
+        "description": "Envoi d'une confirmation de transfert d'argent avec les informations minimales requises"
+      },
+      "response": []
+    },
+    {
+      "name": "💰 Transfert d'Argent - Services Personnalisés",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "x-api-key",
+            "value": "{{api_key}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"senderId\": \"taxi-app-instance\",\n  \"recipients\": [\"+212600123456\", \"+212700000000\"],\n  \"transferData\": {\n    \"transferId\": \"MT2024001235\",\n    \"beneficiary\": {\n      \"name\": \"Service Taxi Premium\",\n      \"city\": \"Rabat, Maroc\",\n      \"phone\": \"+212 700 000 000\"\n    },\n    \"amount\": \"75.50\",\n    \"currency\": \"USD\",\n    \"acceptedServices\": [\n      \"Western Union\",\n      \"Wise (ex-TransferWise)\",\n      \"Remitly\",\n      \"WorldRemit\"\n    ],\n    \"acceptanceDelay\": \"1-3 heures\",\n    \"workingHours\": \"7h-22h\",\n    \"instructions\": [\n      \"Contactez-nous dès réception du code\",\n      \"Vérifiez les frais avant envoi\",\n      \"Service disponible 7j/7\"\n    ]\n  }\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/whatsapp/money-transfer/confirmation",
+          "host": ["{{base_url}}"],
+          "path": ["api", "whatsapp", "money-transfer", "confirmation"]
+        },
+        "description": "Confirmation avec services de transfert personnalisés"
+      },
+      "response": []
+    },
+    {
       "name": "🔄 Restaurer Sessions",
       "request": {
         "method": "POST",

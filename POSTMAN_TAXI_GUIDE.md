@@ -34,6 +34,8 @@ Après l'import, configurez les variables d'environnement :
 
 ## 🧪 Tests Disponibles
 
+La collection contient **11 scénarios de test** :
+
 ### 1. 🏥 Health Check
 **Endpoint**: `GET /health`
 
@@ -130,6 +132,48 @@ Première course gratuite pour les nouveaux clients!
 **Endpoint**: `POST /api/whatsapp/restore-sessions`
 
 **Description**: Restaurer toutes les sessions WhatsApp
+
+### 8. 💰 Transfert d'Argent - Données Complètes
+**Endpoint**: `POST /api/whatsapp/money-transfer/confirmation`
+
+**Description**: Confirmation de transfert d'argent avec toutes les informations
+
+**Données incluses**:
+- ID transfert
+- Informations bénéficiaire complètes
+- Montant et devise
+- Services de transfert acceptés
+- Instructions spéciales
+- Numéro d'urgence
+
+### 9. 💰 Transfert d'Argent - Données Minimales
+**Endpoint**: `POST /api/whatsapp/money-transfer/confirmation`
+
+**Description**: Confirmation avec informations essentielles uniquement
+
+**Données incluses**:
+- Nom bénéficiaire
+- Ville de destination
+- Montant de base
+
+### 10. 💰 Transfert d'Argent - Services Personnalisés
+**Endpoint**: `POST /api/whatsapp/money-transfer/confirmation`
+
+**Description**: Confirmation avec services de transfert personnalisés
+
+**Données incluses**:
+- Services alternatifs (Wise, Remitly, WorldRemit)
+- Horaires étendus
+- Options de retrait multiples
+
+### 11. 🔄 Restaurer Session Spécifique
+**Endpoint**: `POST /api/whatsapp/restore-session`
+
+**Description**: Restauration d'une session WhatsApp spécifique
+
+**Données incluses**:
+- Sender ID
+- Données de session
 
 ## 🔧 Personnalisation des Tests
 

@@ -1102,6 +1102,109 @@ _Merci de votre confiance. Bon voyage!_ 🌟`;
             return res.status(500).json({ error: 'Failed to send taxi booking confirmation' });
         }
     }
+
+    async sendMoneyTransferConfirmation(req, res) {
+        try {
+            const { senderId, recipients, transferData } = req.body;
+
+            if (!recipients || !Array.isArray(recipients) || recipients.length === 0) {
+                return res.status(400).json({ error: 'Recipients array is required' });
+            }
+
+            if (!transferData) {
+                return res.status(400).json({ error: 'Transfer data is required' });
+            }
+
+            // Construire le message de confirmation de transfert d'argent
+            const message = this.buildMoneyTransferMessage(transferData);
+
+            // Envoyer le message à tous les destinataires
+            for (const recipient of recipients) {
+                await this.whatsappService.sendMessage(senderId, recipient, message);
+            }
+
+            console.log(`Money transfer confirmation sent to ${recipients.length} recipient(s)`);
+            res.json({ 
+                message: 'Money transfer confirmation sent successfully',
+                transferId: transferData.transferId || 'N/A'
+            });
+
+        } catch (error) {
+            console.error('Error sending money transfer confirmation:', error);
+            res.status(500).json({ error: 'Failed to send money transfer confirmation' });
+        }
+    }
+
+    buildMoneyTransferMessage(transferData) {
+        const {
+            transferId,
+            beneficiary,
+            amount,
+            currency = 'EUR',
+            acceptedServices = [],
+            acceptanceDelay = '2-4 heures',
+            workingHours = '8h-20h',
+            instructions = []
+        } = transferData;
+
+        let message = `💰 *CONFIRMATION DE DEMANDE DE TRANSFERT*\n\n`;
+        message += `✅ Votre réservation a été bien reçue, nous traitons votre demande.\n\n`;
+        
+        if (transferId) {
+            message += `🆔 *Référence:* ${transferId}\n\n`;
+        }
+
+        message += `💸 *Transfert d'Argent*\n\n`;
+        
+        // Informations du bénéficiaire
+        message += `👤 *Informations du Bénéficiaire*\n`;
+        if (beneficiary?.name) {
+            message += `📝 Nom: ${beneficiary.name}\n`;
+        }
+        if (beneficiary?.city) {
+            message += `🏙️ Ville: ${beneficiary.city}\n`;
+        }
+        if (beneficiary?.phone) {
+            message += `📱 Téléphone: ${beneficiary.phone}\n`;
+        }
+        
+        // Montant
+        if (amount) {
+            message += `💵 Montant: ${amount} ${currency}\n\n`;
+        }
+
+        // Services acceptés
+        if (acceptedServices.length > 0) {
+            message += `🏦 *Services Acceptés*\n`;
+            acceptedServices.forEach(service => {
+                message += `• ${service}\n`;
+            });
+            message += `\n`;
+        }
+
+        // Délai d'acceptation
+        message += `⏰ *Délai d'Acceptation*\n`;
+        message += `Les transferts sont acceptés par nos agences dans un délai de ${acceptanceDelay} pendant les heures d'ouverture (${workingHours}).\n\n`;
+
+        // Instructions
+        if (instructions.length > 0) {
+            message += `📋 *Instructions*\n`;
+            instructions.forEach(instruction => {
+                message += `• ${instruction}\n`;
+            });
+        } else {
+            // Instructions par défaut
+            message += `📋 *Instructions*\n`;
+            message += `• Envoyez-nous le code de transfert par WhatsApp\n`;
+            message += `• Gardez le reçu jusqu'à confirmation\n`;
+            message += `• Le service sera confirmé après réception\n`;
+        }
+
+        message += `\n✅ *Votre demande est en cours de traitement !*\n\n`;
+        message += `_Merci de votre confiance. Nous vous contacterons bientôt._ 🌟`;
+
+        return message;
+    }
 }
 
 export default WhatsAppController;

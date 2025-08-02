@@ -101,6 +101,44 @@ The service will be available at `http://localhost:3000`.
   }
   ```
 
+### 💰 Endpoints Transfert d'Argent
+
+#### Confirmation de Demande de Transfert
+- **POST** `/api/whatsapp/money-transfer/confirmation`
+  
+  **Description**: Envoie une confirmation de réception de demande de transfert d'argent
+  
+  **Request Body**:
+  ```json
+  {
+    "senderId": "your-whatsapp-business-number",
+    "recipients": ["+212600000000"],
+    "transferData": {
+      "transferId": "MT2024001234",
+      "beneficiary": {
+        "name": "Ahmed Taxi Service",
+        "city": "Casablanca, Maroc",
+        "phone": "+212 600 000 000"
+      },
+      "amount": "44.17",
+      "currency": "EUR",
+      "acceptedServices": [
+        "Western Union",
+        "MoneyGram",
+        "Ria Money Transfer",
+        "Autres services similaires"
+      ],
+      "acceptanceDelay": "2-4 heures",
+      "workingHours": "8h-20h",
+      "instructions": [
+        "Envoyez-nous le code de transfert par WhatsApp",
+        "Gardez le reçu jusqu'à confirmation",
+        "Le service sera confirmé après réception"
+      ]
+    }
+  }
+  ```
+
 ### 📱 Endpoints WhatsApp Génériques
 
 #### Envoi de Message Simple
