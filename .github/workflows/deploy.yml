@@ -34,8 +34,7 @@ jobs:
       
     - name: 🔍 Run security audit
       run: npm audit --audit-level=moderate
-      continue-on-error: true
-  deploy:
+      continue-on-error: true  deploy:
     needs: test
     runs-on: ubuntu-latest
     if: (github.event_name == 'push' && github.ref == 'refs/heads/main') || (github.event_name == 'pull_request' && github.event.pull_request.merged == true)
