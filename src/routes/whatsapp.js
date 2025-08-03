@@ -40,3 +40,4 @@ router.post('/templates/booking-confirmation', authMiddleware, (req, res) => wha
 router.post('/templates/money-transfer-confirmation', authMiddleware, (req, res) => whatsappController.sendMoneyTransferConfirmation(req, res));
 
 export default router;
+ 
